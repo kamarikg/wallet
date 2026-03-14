@@ -47,38 +47,27 @@ func TestService_Reject_succsess(t *testing.T)  {
 
 func TestService_FindPaymentByID_success(t *testing.T) {
 	//создаём сервис
-	s := &Service{}
-
-	// резистрируем там пользователя
-	phone := types.Phone("+992918654619")
-	account, err := s.RegisterAccount(phone)
+	s := newTestService()
+	account, err := s.addAccountWithBalance("+992918654619", 10_000_00)
 	if err != nil {
-		t.Errorf("FindPaymentByID(): can't register account, error = %v", err)
-		return
-	}
-
-	// пополняем его счёт
-	err = s.Deposit(account.ID, 10_000_00)
-	if err != nil {
-		t.Errorf("FindPaymentByID(): can't register account, error = %v", err)
+		t.Error(err)
 		return
 	}
 
 	// осуществляем платёж на его счёт
-	payment, err := s.Pay(account.ID, 1000_00, "auto")
+	payment, err := s.Pay(account.ID, 10_000_00, "auto")
 	if err != nil {
-		t.Errorf("FindPaymentByID(): can't create payment, error = %v", err)
+		t.Errorf("FindPaymentByID(): can't register account, error = %v", err)
 		return
 	}
-
-	// пробуем найти платеж
+	// пробуем найти платёж
 	got, err := s.FindPaymentByID(payment.ID)
 	if err != nil {
 		t.Errorf("FindPaymentByID(): error = %v", err)
 		return
 	}
 
-	// сравнимаем платежи
+	// сравниваем платежи
 	if !reflect.DeepEqual(payment, got) {
 		t.Errorf("FindPaymentByID(): wrong payment returned = %v", err)
 		return
